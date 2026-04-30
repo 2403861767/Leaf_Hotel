@@ -1,4 +1,21 @@
 {
+  "permissions": {
+    "allow": [
+      "Bash(java -version)",
+      "Bash(npm -v)",
+      "Bash(npx ctx7@latest library \"Vue.js\" \"How to create a Vue 3 project with Vite, install Element Plus, Pinia, Axios, and Vue Router in 2026\")",
+      "Bash(npx ctx7@latest docs \"/vuejs/core\" \"How to initialize a Vue 3 project with Vite in 2026, create-vue scaffolding\")",
+      "Bash(npx ctx7@latest docs /vuejs/core \"How to create a Vue 3 project with Vite, create-vue scaffolding in 2026\")",
+      "Bash(npx ctx7@latest docs \"//vuejs/core\" \"How to create a Vue 3 project with Vite in 2026, create-vue scaffolding\")",
+      "Bash(npx.cmd ctx7@latest docs /vuejs/core \"How to create a Vue 3 project with Vite in 2026\")",
+      "Bash(npm create *)",
+      "Bash(npm install *)",
+      "Bash(npm run *)"
+    ],
+    "additionalDirectories": [
+      "d:\\Project\\ClaudeCode_Project\\Hotel\\hotel-fronted\\src"
+    ]
+  },
   "enabledPlugins": {
     "example-skills@anthropic-agent-skills": true
   }

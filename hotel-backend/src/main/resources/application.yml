@@ -1,0 +1,50 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: leaf-hotel
+  profiles:
+    active: dev
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/leaf_hotel?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&useSSL=false
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      database: 0
+      timeout: 5000
+      password: 123456
+
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: Asia/Shanghai
+    property-naming-strategy: LOWER_CAMEL_CASE
+
+mybatis-plus:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.seeleaf.hotel.entity
+  global-config:
+    db-config:
+      id-type: AUTO
+      logic-delete-field: is_deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+jwt:
+  secret: YTJkM2Y1ZjdhOGI5YzBlMWQ0ZjVnNmgyajNrMGwxbjJvM3A0cTVyN3M4dDl1MA==
+  expiration: 7200
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html

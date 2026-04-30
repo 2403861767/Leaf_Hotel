@@ -18,9 +18,20 @@
 | 技术/组件 | 类别 | 启用触发条件 | 状态 | 备注 |
 | :--- | :--- | :--- | :--- | :--- |
 | Context7 | 增强工具 | 调用技术查询 | 🟢 运行中 | 用于文档精度增强 |
-| MySQL | 数据库 | 编写 SQL 或配置数据源 | 🟢 运行中 | 待持久化层开发 |
-| frontend-design | UI技能 | 开始页面开发 | ⚪ 待命 | 用于美化 Admin 界面 |
-| [待自动填充] | [待补充] | [检测到新依赖/后缀] | ⚪ | 发现新组件请在此增补 |
+| MySQL | 数据库 | 编写 SQL 或配置数据源 | 🟢 运行中 | 已配置数据源 |
+| Spring Boot | 后端框架 | Maven pom.xml | 🟢 运行中 | 3.5.3 |
+| MyBatis-Plus | ORM | Maven pom.xml | 🟢 运行中 | 3.5.7，含分页/乐观锁插件 |
+| Spring Security | 权限 | Maven pom.xml | 🟢 运行中 | JWT 无状态认证 + RBAC |
+| Redis | 缓存/锁 | Maven pom.xml | 🟢 运行中 | 已配置 RedisTemplate |
+| JWT | 认证 | Maven pom.xml | 🟢 运行中 | jjwt 0.12.6 |
+| SpringDoc | API 文档 | Maven pom.xml | 🟢 运行中 | OpenAPI 3.0 |
+| Vue 3 | 前端框架 | hotel-fronted/package.json | 🟢 运行中 | 3.5+，Composition API |
+| Vite | 前端构建 | hotel-fronted/package.json | 🟢 运行中 | 8.x，含代理配置 |
+| Element Plus | UI 组件库 | hotel-fronted/package.json | 🟢 运行中 | 2.x，中文 locale |
+| Pinia | 状态管理 | hotel-fronted/package.json | 🟢 运行中 | 2.x，auth store |
+| Vue Router | 前端路由 | hotel-fronted/package.json | 🟢 运行中 | 4.x，导航守卫 |
+| Axios | HTTP 客户端 | hotel-fronted/package.json | 🟢 运行中 | 1.x，拦截器链 |
+| frontend-design | UI技能 | 开始页面开发 | 🟢 运行中 | 已完成所有页面美化 |
 
 ## 🎨 设计与视觉规范
 - **审美标准**: 页面必须美观、专业、具备企业级质感。
@@ -33,4 +44,4 @@
 - **禁止盲目猜写**: 对于不确定的框架用法，必须先运行 `Context7` 验证。
 
 ---
-**当前状态**: 已就绪。请读取 `docs/PRD-V1.md` 并开始第一步任务。
+**当前状态**: v1.0 MVP 前后端已完整交付。前端 Vue3 + Element Plus 项目位于 `hotel-fronted/`，后端 Spring Boot 项目位于 `hotel-backend/`。

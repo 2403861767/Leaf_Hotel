@@ -1,0 +1,59 @@
+package com.seeleaf.hotel.security;
+
+import com.seeleaf.hotel.common.constant.Constants;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+import java.io.IOException;
+
+/**
+ * JWT 认证过滤器，从请求头中提取 Bearer Token 并解析认证信息。
+ * <p>
+ * 过滤器链位置：{@link UsernamePasswordAuthenticationFilter} 之前。
+ * 认证成功后会将 LoginUser 写入 SecurityContext，后续 {@code @PreAuthorize} 以此判断权限。
+ */
+@Component
+@RequiredArgsConstructor
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
+    private final JwtTokenProvider jwtTokenProvider;
+    private final CustomUserDetailsService customUserDetailsService;
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+                                    FilterChain filterChain) throws ServletException, IOException {
+        String token = extractToken(request);
+
+        if (StringUtils.hasText(token) && jwtTokenProvider.validateToken(token)) {
+            String username = jwtTokenProvider.getUsernameFromToken(token);
+            UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
+
+            UsernamePasswordAuthenticationToken authentication =
+                    new UsernamePasswordAuthenticationToken(
+                            userDetails, null, userDetails.getAuthorities());
+            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+        }
+
+        filterChain.doFilter(request, response);
+    }
+
+    private String extractToken(HttpServletRequest request) {
+        String bearerToken = request.getHeader(Constants.TOKEN_HEADER);
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(Constants.TOKEN_PREFIX)) {
+            return bearerToken.substring(Constants.TOKEN_PREFIX.length());
+        }
+        return null;
+    }
+}
