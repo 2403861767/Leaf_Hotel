@@ -63,6 +63,17 @@
 </template>
 
 <script setup>
+/**
+ * 房态图 —— 以色块网格展示所有房间的实时状态。
+ *
+ * 数据流：
+ *   getStatusMap() 返回 { available: [...], occupied: [...], dirty: [...], maintenance: [...] }
+ *   前端将四个分组展平为统一数组，每条记录标记 status 字段，
+ *   再通过楼层/房型下拉筛选器过滤展示。
+ *
+ * 点击房间卡片 → getRoomDetail(id) 弹出详情对话框（含房型信息 + 在住客人信息）。
+ * 房间卡片的背景色由 CSS 类 room-{status} 控制。
+ */
 import { ref, computed, onMounted } from 'vue'
 import { getStatusMap, getRoomDetail } from '../api/room'
 import { Refresh } from '@element-plus/icons-vue'
@@ -77,6 +88,7 @@ const typeFilter = ref(null)
 const detailVisible = ref(false)
 const currentRoom = ref(null)
 
+/** 房态图例：四种状态对应的色块颜色，与 CSS room-{status} 类保持一致 */
 const legendList = [
   { label: '可售', color: '#48762E' },
   { label: '入住中', color: '#C04848' },
@@ -84,6 +96,7 @@ const legendList = [
   { label: '维修', color: '#909399' }
 ]
 
+/** 前端过滤：按楼层 + 房型二次筛选，无后端请求 */
 const filteredRooms = computed(() => {
   return rooms.value.filter(r => {
     if (floorFilter.value && r.floor !== floorFilter.value) return false
@@ -107,6 +120,7 @@ async function loadData() {
   try {
     const res = await getStatusMap()
     const data = res.data || {}
+    // 将后端分组数据 {{status: [room, ...]}} 展平为统一数组
     const all = []
     const typeSet = new Set()
     const floorSet = new Set()
@@ -118,6 +132,7 @@ async function loadData() {
       }
     }
     rooms.value = all
+    // 从房间列表中提取去重后的房型和楼层，供筛选下拉框使用
     roomTypes.value = Array.from(typeSet).map(id => ({ id, typeName: data[id]?.typeName || `房型${id}` }))
     floors.value = Array.from(floorSet).sort((a, b) => a - b)
   } catch (e) {

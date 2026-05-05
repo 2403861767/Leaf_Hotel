@@ -35,4 +35,15 @@ public class Room {
     /** 非数据库字段：由 RoomServiceImpl.getRoomDetail 手动填充 */
     @TableField(exist = false)
     private RoomType roomType;
+
+    /** 非数据库字段：在住客人信息，由 RoomServiceImpl.getRoomDetail 填充 */
+    @TableField(exist = false)
+    private OccupiedInfo occupiedInfo;
+
+    @Data
+    public static class OccupiedInfo {
+        private String guestName;
+        private LocalDateTime checkInTime;
+        private LocalDateTime expectedCheckOut;
+    }
 }

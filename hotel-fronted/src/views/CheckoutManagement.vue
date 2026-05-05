@@ -116,6 +116,17 @@
 </template>
 
 <script setup>
+/**
+ * 退房管理 —— 分左右两栏：左侧在住客人查询 + 右侧退房结算表单。
+ *
+ * 退房结算链（对应后端 CheckoutServiceImpl 的 9 步事务）：
+ *   1. 左栏查询在住客人 → 点击选中一行
+ *   2. 右栏录入杂费（迷你吧/洗衣/电话等）→ "费用试算" 调 calculateRefund 预览
+ *   3. "确认退房结账" → ElMessageBox 二次确认 → createCheckout 提交
+ *      后端自动：计算过夜天数 × 房价 → 叠加杂费 → 押金抵扣 → 退差额 → 房态变 dirty
+ *
+ * calculateRefund 是只读预计算接口，不写入数据库。
+ */
 import { ref, reactive } from 'vue'
 import { queryCheckins } from '../api/checkin'
 import { calculateRefund, createCheckout } from '../api/checkout'
@@ -148,13 +159,14 @@ async function searchInHouse() {
     const params = { status: 'in_house', page: 1, pageSize: 50 }
     if (searchKeyword.value) params.keyword = searchKeyword.value
     const res = await queryCheckins(params)
-    inHouseList.value = res.data?.records || []
+    inHouseList.value = res.data?.list || []
   } catch (e) {
     ElMessage.error('查询失败')
   }
   searchLoading.value = false
 }
 
+/** 切换选择的入住记录时，清空预览和杂费列表 */
 function selectRegistration(row) {
   selected.value = row
   preview.value = null
@@ -177,6 +189,7 @@ async function calculatePreview() {
 
 async function confirmCheckout() {
   if (!selected.value || !preview.value) return
+  // 二次确认防止误操作
   try {
     await ElMessageBox.confirm('确认办理退房结账？', '提示', {
       confirmButtonText: '确认退房',
@@ -209,7 +222,7 @@ async function loadHistory() {
   historyLoading.value = true
   try {
     const res = await queryCheckins({ status: 'checked_out', page: 1, pageSize: 20 })
-    historyList.value = res.data?.records || []
+    historyList.value = res.data?.list || []
   } catch (e) {}
   historyLoading.value = false
 }

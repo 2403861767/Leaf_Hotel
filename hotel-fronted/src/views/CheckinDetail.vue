@@ -55,6 +55,12 @@
 </template>
 
 <script setup>
+/**
+ * 入住详情页 —— 展示单条入住记录的完整信息 + 关联押金列表。
+ *
+ * 并行请求两个接口：getCheckinDetail(id) 获取入住详情，
+ * queryDeposits(id) 获取该入住单下所有押金记录。
+ */
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { getCheckinDetail } from '../api/checkin'

@@ -130,6 +130,17 @@
 </template>
 
 <script setup>
+/**
+ * 办理入住 —— 核心业务表单，分三栏布局：客人信息 | 房间选择 | 押金。
+ *
+ * 入住流程（三步串联）：
+ *   1. 客人：远程搜索已有客人或弹窗新建 → 选中后自动回填姓名/证件号/电话
+ *   2. 房间：选房型 → 自动加载该房型下所有可售房间 → 点击卡片选中
+ *   3. 提交：校验必填项 → createCheckin() → 后端开事务（创建入住记录 + 房态变更为 occupied）
+ *
+ * 客人搜索使用 el-select 的 remote-method 实现异步远程搜索。
+ * 新建客人成功后自动选中并回填表单。
+ */
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { queryGuests, createGuest } from '../api/guest'
@@ -177,16 +188,18 @@ const newGuest = reactive({
   address: ''
 })
 
+/** 远程搜索客人：后端按姓名/证件号/手机号三字段 OR 匹配 */
 async function searchGuest(keyword) {
   if (!keyword) return
   try {
     const res = await queryGuests({ keyword, page: 1, pageSize: 20 })
-    guestOptions.value = res.data?.records || []
+    guestOptions.value = res.data?.list || []
   } catch (e) {
     guestOptions.value = []
   }
 }
 
+/** 选中客人后自动回填只读信息（姓名/证件号/电话） */
 function onGuestSelected(id) {
   const g = guestOptions.value.find(x => x.id === id)
   if (g) {
@@ -196,6 +209,7 @@ function onGuestSelected(id) {
   }
 }
 
+/** 按房型筛选可售房间，用于房间选择网格 */
 async function loadAvailableRooms(typeId) {
   if (!typeId) return
   roomLoading.value = true
@@ -244,6 +258,7 @@ async function submitCheckin() {
       source: form.source,
       bookingNumber: form.bookingNumber || undefined
     }
+    // 可选关联预订：仅当用户填写了预订编号时才传入
     if (form.reservationId) data.reservationId = parseInt(form.reservationId)
     const res = await createCheckin(data)
     ElMessage.success(`入住办理成功！房间号：${res.data.roomNumber}`)
@@ -254,6 +269,7 @@ async function submitCheckin() {
   submitting.value = false
 }
 
+// 页面初始化：拉取全部可售房间以提取房型列表供下拉框使用
 onMounted(async () => {
   try {
     const res = await getAvailableRooms()

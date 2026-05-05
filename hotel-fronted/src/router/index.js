@@ -1,5 +1,17 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
+/**
+ * 路由配置。
+ *
+ * 两层结构：
+ *   /login — 独立页面，meta.noAuth=true 跳过 Token 校验
+ *   /       — MainLayout 壳，包含侧边栏 + 顶栏，子路由渲染在 <router-view /> 中
+ *
+ * 导航守卫逻辑：
+ *   1. 设置页面标题
+ *   2. meta.noAuth 标记的路由直接放行（登录页）
+ *   3. 其余路由检查 localStorage.token 是否存在，不存在则重定向到 /login
+ */
 const routes = [
   {
     path: '/login',

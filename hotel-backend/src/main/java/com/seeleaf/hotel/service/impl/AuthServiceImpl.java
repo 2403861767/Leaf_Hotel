@@ -12,6 +12,7 @@ import com.seeleaf.hotel.security.model.LoginUser;
 import com.seeleaf.hotel.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -35,17 +36,15 @@ public class AuthServiceImpl implements AuthService {
     public LoginResponse login(LoginRequest request) {
         Authentication authentication;
         try {
-            // 委托 AuthenticationManager 校验用户名密码（实际调用 CustomUserDetailsService）
             authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
+        } catch (DisabledException e) {
+            throw new BusinessException(ErrorCode.USER_DISABLED);
         } catch (Exception e) {
             throw new BusinessException(ErrorCode.USERNAME_OR_PASSWORD_ERROR);
         }
 
         LoginUser loginUser = (LoginUser) authentication.getPrincipal();
-        if (!loginUser.isEnabled()) {
-            throw new BusinessException(ErrorCode.USER_DISABLED);
-        }
 
         // 认证通过后签发 JWT Token，有效期由 jwt.expiration 控制（默认 7200 秒）
         SecurityContextHolder.getContext().setAuthentication(authentication);

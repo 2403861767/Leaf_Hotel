@@ -1,3 +1,9 @@
+/**
+ * 应用入口 —— 挂载 Vue 实例，注册全局插件和图标。
+ *
+ * 注册顺序：Element Plus（中文 locale）→ Pinia → Vue Router → 挂载 #app
+ * 所有 Element Plus 图标通过循环全局注册，模板中可直接使用 <el-icon><IconName /></el-icon>
+ */
 import { createApp } from 'vue'
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'

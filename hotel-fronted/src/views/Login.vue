@@ -47,6 +47,14 @@
 </template>
 
 <script setup>
+/**
+ * 登录页 —— JWT 无状态认证入口。
+ *
+ * 认证链路：表单提交 → authStore.login() 获取 Token 并持久化到 localStorage
+ * → fetchUserInfo() 拉取当前用户权限 → 路由跳转到工作台。
+ * 路由守卫（router.beforeEach）对无 Token 的请求自动重定向至此页，
+ * 该路由通过 meta.noAuth 标记跳过守卫检查。
+ */
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
@@ -73,11 +81,13 @@ async function handleLogin() {
   if (!valid) return
   loading.value = true
   try {
+    // 先获取 Token，再拉取用户权限信息
     await authStore.login({ ...form })
     await authStore.fetchUserInfo()
     ElMessage.success('登录成功')
     router.push('/dashboard')
   } catch (e) {
+    // 后端返回 BusinessException 时 message 为中文提示
     ElMessage.error(e.message || '登录失败，请检查用户名和密码')
   } finally {
     loading.value = false

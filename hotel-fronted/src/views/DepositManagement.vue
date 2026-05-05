@@ -85,6 +85,14 @@
 </template>
 
 <script setup>
+/**
+ * 押金管理 —— 按入住单号查询押金记录，支持收取和退还操作。
+ *
+ * 表单字段随支付方式动态变化：现金只需金额；微信/支付宝额外需单号和流水号；
+ * 银行卡额外需授权码。提交时根据支付方式剔除不需要的字段。
+ *
+ * 退押金前弹出二次确认框，后端会校验是否已退还（防止重复退款）。
+ */
 import { ref, reactive, onMounted } from 'vue'
 import { queryDeposits, createDeposit, refundDeposit } from '../api/deposit'
 import { Plus } from '@element-plus/icons-vue'
@@ -146,6 +154,7 @@ async function submitDeposit() {
   creating.value = true
   try {
     const data = { ...createForm }
+    // 根据支付方式剔除不需要的字段，避免提交空值到后端
     if (data.paymentMethod === 'cash') {
       delete data.slipNumber
       delete data.transactionNo

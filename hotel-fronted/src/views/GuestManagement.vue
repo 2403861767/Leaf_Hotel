@@ -80,6 +80,12 @@
 </template>
 
 <script setup>
+/**
+ * 客人管理 —— 客人档案的增删改查。
+ *
+ * 客人由证件号唯一标识（业务约束），支持按姓名/证件号/手机号三字段搜索。
+ * 编辑时复用同一个对话框，通过 editingId 区分新建/编辑模式。
+ */
 import { ref, reactive, onMounted } from 'vue'
 import { queryGuests, createGuest, updateGuest } from '../api/guest'
 import { Plus } from '@element-plus/icons-vue'
@@ -111,7 +117,7 @@ async function loadData() {
     const params = { ...query }
     if (!params.keyword) delete params.keyword
     const res = await queryGuests(params)
-    list.value = res.data?.records || []
+    list.value = res.data?.list || []
     total.value = res.data?.total || 0
   } catch (e) {
     ElMessage.error('查询失败')

@@ -4,8 +4,12 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.seeleaf.hotel.common.constant.Constants;
 import com.seeleaf.hotel.common.exception.BusinessException;
 import com.seeleaf.hotel.common.exception.ErrorCode;
+import com.seeleaf.hotel.entity.Guest;
+import com.seeleaf.hotel.entity.Registration;
 import com.seeleaf.hotel.entity.Room;
 import com.seeleaf.hotel.entity.RoomType;
+import com.seeleaf.hotel.mapper.GuestMapper;
+import com.seeleaf.hotel.mapper.RegistrationMapper;
 import com.seeleaf.hotel.mapper.RoomMapper;
 import com.seeleaf.hotel.mapper.RoomTypeMapper;
 import com.seeleaf.hotel.service.RoomService;
@@ -28,6 +32,8 @@ public class RoomServiceImpl implements RoomService {
 
     private final RoomMapper roomMapper;
     private final RoomTypeMapper roomTypeMapper;
+    private final RegistrationMapper registrationMapper;
+    private final GuestMapper guestMapper;
 
     @Override
     public Map<String, List<Room>> getStatusMap() {
@@ -43,6 +49,22 @@ public class RoomServiceImpl implements RoomService {
         }
         RoomType roomType = roomTypeMapper.selectById(room.getRoomTypeId());
         room.setRoomType(roomType);
+
+        if (Constants.ROOM_STATUS_OCCUPIED.equals(room.getStatus())) {
+            LambdaQueryWrapper<Registration> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(Registration::getRoomId, id)
+                    .eq(Registration::getStatus, Constants.REG_STATUS_IN_HOUSE);
+            Registration registration = registrationMapper.selectOne(wrapper);
+            if (registration != null) {
+                Guest guest = guestMapper.selectById(registration.getGuestId());
+                Room.OccupiedInfo info = new Room.OccupiedInfo();
+                info.setGuestName(guest != null ? guest.getName() : null);
+                info.setCheckInTime(registration.getCheckInTime());
+                info.setExpectedCheckOut(registration.getExpectedCheckOutTime());
+                room.setOccupiedInfo(info);
+            }
+        }
+
         return room;
     }
 

@@ -17,7 +17,16 @@ public class Registration {
 
     private Long guestId;
 
+    @TableField(exist = false)
+    private String guestName;
+
+    @TableField(exist = false)
+    private String guestPhone;
+
     private Long roomId;
+
+    @TableField(exist = false)
+    private String roomNumber;
 
     private LocalDateTime checkInTime;
 

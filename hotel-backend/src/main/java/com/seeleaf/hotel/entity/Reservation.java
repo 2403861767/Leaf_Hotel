@@ -24,8 +24,10 @@ public class Reservation {
 
     private LocalDate checkOutDate;
 
+    /** 预订状态：pending(待确认) / confirmed(已确认) / checked_in(已入住) / canceled(已取消) */
     private String status;
 
+    /** 预订来源：同入住来源枚举 walk_in / phone / front_desk / manager / online_direct / online_ota / contract */
     private String source;
 
     private BigDecimal depositAmount;

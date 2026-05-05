@@ -95,6 +95,16 @@
 </template>
 
 <script setup>
+/**
+ * 工作台首页 —— 聚合展示酒店当日运营数据。
+ *
+ * 数据来源：
+ *   1. 调用 /checkins（status=in_house）获取在住客人列表
+ *   2. 调用 /rooms/status-map 获取各房态房间数（可售/在住/脏房/维修）
+ *
+ * 顶部统计卡片由 roomStats + inHouseList 派生而出（computed），
+ * 右侧房态概览通过不同颜色圆点直观展示四种房态占比。
+ */
 import { ref, reactive, onMounted, computed } from 'vue'
 import { useAuthStore } from '../stores/auth'
 import { queryCheckins } from '../api/checkin'
@@ -127,6 +137,7 @@ const roomSummary = computed(() => [
   { label: '维修', count: roomStats.maintenance, color: '#909399' }
 ])
 
+/** 将 ISO 时间字符串转为 "YYYY-MM-DD HH:mm" 格式用于表格展示 */
 function formatTime(time) {
   if (!time) return '-'
   return time.substring(0, 16).replace('T', ' ')
@@ -136,7 +147,7 @@ async function loadData() {
   tableLoading.value = true
   try {
     const res = await queryCheckins({ page: 1, pageSize: 50, status: 'in_house' })
-    inHouseList.value = res.data?.records || []
+    inHouseList.value = res.data?.list || []
   } catch (e) {
     console.error(e)
   }

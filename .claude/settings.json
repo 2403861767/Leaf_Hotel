@@ -10,7 +10,13 @@
       "Bash(npx.cmd ctx7@latest docs /vuejs/core \"How to create a Vue 3 project with Vite in 2026\")",
       "Bash(npm create *)",
       "Bash(npm install *)",
-      "Bash(npm run *)"
+      "Bash(npm run *)",
+      "Bash(mysql -u root -p123456 leaf_hotel -e \"SELECT id, username, password_hash, real_name, role_id, status FROM sys_user;\")",
+      "Bash(mysql -u root -p123456 leaf_hotel -e \"SELECT * FROM sys_role;\")",
+      "Bash(mysql -u root -p123456 leaf_hotel -e \"SELECT * FROM sys_role_permission;\")",
+      "Bash(netstat -ano)",
+      "Bash(taskkill /PID 24872 /PID 19364 /F)",
+      "Bash(cmd //c \"taskkill /PID 24872 /F && taskkill /PID 19364 /F\")"
     ],
     "additionalDirectories": [
       "d:\\Project\\ClaudeCode_Project\\Hotel\\hotel-fronted\\src"

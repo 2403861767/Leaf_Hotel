@@ -1,6 +1,15 @@
 import axios from 'axios'
 import router from '../router'
 
+/**
+ * Axios 实例 —— 统一的 HTTP 客户端配置。
+ *
+ * 拦截器链：
+ *   请求 → 自动附加 Bearer Token（从 localStorage 读取）
+ *   响应 → 统一解包 res.data；401 时清除本地状态并跳转登录页
+ *
+ * baseURL 由 vite.config.js 中 proxy 配置转发到后端 8080 端口。
+ */
 const request = axios.create({
   baseURL: '/api/v1',
   timeout: 30000

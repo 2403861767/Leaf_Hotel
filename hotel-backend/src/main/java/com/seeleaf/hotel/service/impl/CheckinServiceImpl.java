@@ -7,8 +7,10 @@ import com.seeleaf.hotel.common.exception.BusinessException;
 import com.seeleaf.hotel.common.exception.ErrorCode;
 import com.seeleaf.hotel.dto.request.CheckinRequest;
 import com.seeleaf.hotel.dto.response.CheckinResponse;
+import com.seeleaf.hotel.entity.Guest;
 import com.seeleaf.hotel.entity.Registration;
 import com.seeleaf.hotel.entity.Room;
+import com.seeleaf.hotel.mapper.GuestMapper;
 import com.seeleaf.hotel.mapper.RegistrationMapper;
 import com.seeleaf.hotel.mapper.RoomMapper;
 import com.seeleaf.hotel.security.model.LoginUser;
@@ -20,6 +22,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 入住登记服务实现，处理客人办理入住、换房及入住记录查询等前台核心操作。
@@ -32,6 +37,7 @@ public class CheckinServiceImpl implements CheckinService {
 
     private final RegistrationMapper registrationMapper;
     private final RoomMapper roomMapper;
+    private final GuestMapper guestMapper;
 
     @Override
     @Transactional
@@ -86,7 +92,35 @@ public class CheckinServiceImpl implements CheckinService {
             wrapper.eq(Registration::getStatus, status);
         }
         wrapper.orderByDesc(Registration::getCreatedAt);
-        return registrationMapper.selectPage(pageParam, wrapper);
+        IPage<Registration> result = registrationMapper.selectPage(pageParam, wrapper);
+
+        // 批量填充客人姓名/电话和房间号，避免前端二次查询
+        List<Registration> records = result.getRecords();
+        if (!records.isEmpty()) {
+            List<Long> guestIds = records.stream()
+                    .map(Registration::getGuestId).distinct().collect(Collectors.toList());
+            List<Long> roomIds = records.stream()
+                    .map(Registration::getRoomId).distinct().collect(Collectors.toList());
+
+            Map<Long, Guest> guestMap = guestMapper.selectBatchIds(guestIds).stream()
+                    .collect(Collectors.toMap(Guest::getId, g -> g));
+            Map<Long, Room> roomMap = roomMapper.selectBatchIds(roomIds).stream()
+                    .collect(Collectors.toMap(Room::getId, r -> r));
+
+            records.forEach(r -> {
+                Guest guest = guestMap.get(r.getGuestId());
+                if (guest != null) {
+                    r.setGuestName(guest.getName());
+                    r.setGuestPhone(guest.getPhone());
+                }
+                Room room = roomMap.get(r.getRoomId());
+                if (room != null) {
+                    r.setRoomNumber(room.getRoomNumber());
+                }
+            });
+        }
+
+        return result;
     }
 
     @Override
@@ -94,6 +128,15 @@ public class CheckinServiceImpl implements CheckinService {
         Registration registration = registrationMapper.selectById(id);
         if (registration == null) {
             throw new BusinessException(ErrorCode.REGISTRATION_NOT_FOUND);
+        }
+        Guest guest = guestMapper.selectById(registration.getGuestId());
+        if (guest != null) {
+            registration.setGuestName(guest.getName());
+            registration.setGuestPhone(guest.getPhone());
+        }
+        Room room = roomMapper.selectById(registration.getRoomId());
+        if (room != null) {
+            registration.setRoomNumber(room.getRoomNumber());
         }
         return registration;
     }

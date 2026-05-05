@@ -72,6 +72,12 @@
 </template>
 
 <script setup>
+/**
+ * 入住管理列表 —— 支持按单号/房号关键词搜索、按入住状态筛选的分页表格。
+ *
+ * 点击行跳转到入住详情页；在住状态的记录可快速跳转退房页。
+ * 查询参数为空时自动剔除（避免传空字符串到后端）。
+ */
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { queryCheckins } from '../api/checkin'
@@ -102,7 +108,7 @@ async function loadData() {
     if (!params.keyword) delete params.keyword
     if (!params.status) delete params.status
     const res = await queryCheckins(params)
-    list.value = res.data?.records || []
+    list.value = res.data?.list || []
     total.value = res.data?.total || 0
   } catch (e) {
     ElMessage.error('查询失败')

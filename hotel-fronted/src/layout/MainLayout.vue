@@ -7,12 +7,12 @@
       </div>
       <el-menu
         :default-active="activeMenu"
+        router
         :collapse="isCollapse"
         :collapse-transition="false"
         background-color="#1e1e2d"
         text-color="#a2a3b7"
         active-text-color="#ffffff"
-        router
       >
         <el-menu-item index="/dashboard">
           <el-icon><Odometer /></el-icon>
@@ -79,7 +79,17 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+/**
+ * 主布局 —— 经典的侧边栏 + 顶栏 + 内容区三段式管理后台布局。
+ *
+ * 侧边栏：el-menu 的 router 模式自动根据当前路由高亮对应菜单项。
+ * 顶栏：左侧折叠按钮 + 面包屑导航，右侧用户头像下拉菜单。
+ * 内容区：<router-view /> 渲染子路由页面。
+ *
+ * 首次加载时若 user 信息为空（如页面刷新后 localStorage 恢复不完整），
+ * 自动调 fetchUserInfo 补全。
+ */
+import { ref, computed, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import {
@@ -92,8 +102,17 @@ const router = useRouter()
 const authStore = useAuthStore()
 const isCollapse = ref(false)
 
-const activeMenu = computed(() => route.path)
+const activeMenu = ref('/dashboard')
 const currentTitle = computed(() => route.meta.title || '')
+
+watch(() => route.path, (path) => {
+  // 子路由统一高亮父级菜单（如 /checkins/create → /checkins）
+  if (path.startsWith('/checkins')) {
+    activeMenu.value = '/checkins'
+  } else {
+    activeMenu.value = path
+  }
+})
 
 onMounted(() => {
   if (!authStore.user) {
@@ -107,6 +126,7 @@ function handleCommand(command) {
     router.push('/login')
   }
 }
+
 </script>
 
 <style scoped>
