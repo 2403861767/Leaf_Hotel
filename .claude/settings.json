@@ -16,7 +16,8 @@
       "Bash(mysql -u root -p123456 leaf_hotel -e \"SELECT * FROM sys_role_permission;\")",
       "Bash(netstat -ano)",
       "Bash(taskkill /PID 24872 /PID 19364 /F)",
-      "Bash(cmd //c \"taskkill /PID 24872 /F && taskkill /PID 19364 /F\")"
+      "Bash(cmd //c \"taskkill /PID 24872 /F && taskkill /PID 19364 /F\")",
+      "Bash(cmd //c \"taskkill /F /IM java.exe && taskkill /F /IM node.exe\")"
     ],
     "additionalDirectories": [
       "d:\\Project\\ClaudeCode_Project\\Hotel\\hotel-fronted\\src"

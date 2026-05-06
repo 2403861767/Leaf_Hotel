@@ -6,7 +6,6 @@
         <span v-else class="logo-text-mini">🍁</span>
       </div>
       <el-menu
-        :default-active="activeMenu"
         router
         :collapse="isCollapse"
         :collapse-transition="false"
@@ -72,7 +71,7 @@
         </div>
       </el-header>
       <el-main class="layout-main">
-        <router-view />
+        <router-view :key="route.path" />
       </el-main>
     </el-container>
   </el-container>
@@ -89,7 +88,7 @@
  * 首次加载时若 user 信息为空（如页面刷新后 localStorage 恢复不完整），
  * 自动调 fetchUserInfo 补全。
  */
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, onMounted, onErrorCaptured } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import {
@@ -102,22 +101,17 @@ const router = useRouter()
 const authStore = useAuthStore()
 const isCollapse = ref(false)
 
-const activeMenu = ref('/dashboard')
 const currentTitle = computed(() => route.meta.title || '')
-
-watch(() => route.path, (path) => {
-  // 子路由统一高亮父级菜单（如 /checkins/create → /checkins）
-  if (path.startsWith('/checkins')) {
-    activeMenu.value = '/checkins'
-  } else {
-    activeMenu.value = path
-  }
-})
 
 onMounted(() => {
   if (!authStore.user) {
     authStore.fetchUserInfo()
   }
+})
+
+onErrorCaptured((err, instance, info) => {
+  console.warn('MainLayout caught error from child:', err.message, 'info:', info)
+  return false
 })
 
 function handleCommand(command) {

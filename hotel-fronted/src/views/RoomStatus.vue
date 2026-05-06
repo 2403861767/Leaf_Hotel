@@ -31,7 +31,7 @@
         @click="showDetail(room)"
       >
         <div class="room-number">{{ room.roomNumber }}</div>
-        <div class="room-type">{{ room.typeName || '-' }}</div>
+        <div class="room-type">{{ room.roomType?.typeName || '-' }}</div>
         <div class="room-status-tag">{{ statusLabel(room.status) }}</div>
       </div>
     </div>
@@ -41,13 +41,13 @@
         <el-descriptions :column="2" border>
           <el-descriptions-item label="房号">{{ currentRoom.roomNumber }}</el-descriptions-item>
           <el-descriptions-item label="楼层">{{ currentRoom.floor }}F</el-descriptions-item>
-          <el-descriptions-item label="房型">{{ currentRoom.typeName || '-' }}</el-descriptions-item>
+          <el-descriptions-item label="房型">{{ currentRoom.roomType?.typeName || '-' }}</el-descriptions-item>
           <el-descriptions-item label="房态">
             <el-tag :type="statusTagType(currentRoom.status)">{{ statusLabel(currentRoom.status) }}</el-tag>
           </el-descriptions-item>
-          <el-descriptions-item label="面积" v-if="currentRoom.area">{{ currentRoom.area }}m²</el-descriptions-item>
-          <el-descriptions-item label="床型" v-if="currentRoom.bedType">{{ currentRoom.bedType }}</el-descriptions-item>
-          <el-descriptions-item label="价格" v-if="currentRoom.basePrice">¥{{ currentRoom.basePrice }}</el-descriptions-item>
+          <el-descriptions-item label="面积" v-if="currentRoom.roomType?.area">{{ currentRoom.roomType.area }}m²</el-descriptions-item>
+          <el-descriptions-item label="床型" v-if="currentRoom.roomType?.bedType">{{ currentRoom.roomType.bedType }}</el-descriptions-item>
+          <el-descriptions-item label="价格" v-if="currentRoom.roomType?.basePrice">¥{{ currentRoom.roomType.basePrice }}</el-descriptions-item>
         </el-descriptions>
         <div v-if="currentRoom.occupiedInfo" class="occupied-info" style="margin-top: 16px;">
           <h4>当前住客信息</h4>
@@ -133,7 +133,13 @@ async function loadData() {
     }
     rooms.value = all
     // 从房间列表中提取去重后的房型和楼层，供筛选下拉框使用
-    roomTypes.value = Array.from(typeSet).map(id => ({ id, typeName: data[id]?.typeName || `房型${id}` }))
+    const typeMap = new Map()
+    for (const room of all) {
+      if (room.roomType && !typeMap.has(room.roomTypeId)) {
+        typeMap.set(room.roomTypeId, { id: room.roomTypeId, typeName: room.roomType.typeName })
+      }
+    }
+    roomTypes.value = Array.from(typeMap.values())
     floors.value = Array.from(floorSet).sort((a, b) => a - b)
   } catch (e) {
     ElMessage.error('加载房态数据失败')

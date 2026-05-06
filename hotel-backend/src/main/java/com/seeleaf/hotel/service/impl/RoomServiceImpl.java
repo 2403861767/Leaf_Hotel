@@ -38,6 +38,12 @@ public class RoomServiceImpl implements RoomService {
     @Override
     public Map<String, List<Room>> getStatusMap() {
         List<Room> rooms = roomMapper.selectList(null);
+        List<Long> typeIds = rooms.stream().map(Room::getRoomTypeId).distinct().collect(Collectors.toList());
+        Map<Long, RoomType> typeMap = roomTypeMapper.selectBatchIds(typeIds).stream()
+                .collect(Collectors.toMap(RoomType::getId, t -> t));
+        for (Room room : rooms) {
+            room.setRoomType(typeMap.get(room.getRoomTypeId()));
+        }
         return rooms.stream().collect(Collectors.groupingBy(Room::getStatus));
     }
 

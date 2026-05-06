@@ -63,11 +63,13 @@
       <el-col :span="10">
         <el-card shadow="hover">
           <template #header><span style="font-weight: 600;">选择房间</span></template>
-          <el-form-item label="房型">
-            <el-select v-model="form.roomTypeId" placeholder="选择房型" style="width: 100%" @change="loadAvailableRooms">
-              <el-option v-for="t in roomTypes" :key="t.id" :label="t.typeName" :value="t.id" />
-            </el-select>
-          </el-form-item>
+          <el-form label-width="90px">
+            <el-form-item label="房型">
+              <el-select v-model="form.roomTypeId" placeholder="选择房型" style="width: 100%" @change="loadAvailableRooms">
+                <el-option v-for="t in roomTypes" :key="t.id" :label="t.typeName" :value="t.id" />
+              </el-select>
+            </el-form-item>
+          </el-form>
           <div class="room-select-grid" v-loading="roomLoading">
             <div
               v-for="room in availableRooms"
@@ -85,19 +87,21 @@
 
         <el-card shadow="hover" style="margin-top: 16px;">
           <template #header><span style="font-weight: 600;">押金</span></template>
-          <el-form-item label="押金金额">
-            <el-input-number v-model="form.depositAmount" :min="0" :precision="2" :step="100" style="width: 100%" />
-          </el-form-item>
+          <el-form label-width="90px">
+            <el-form-item label="押金金额">
+              <el-input-number v-model="form.depositAmount" :min="0" :precision="2" :step="100" style="width: 100%" />
+            </el-form-item>
+          </el-form>
         </el-card>
-
-        <div style="margin-top: 16px; display: flex; gap: 8px;">
-          <el-button type="danger" size="large" style="flex: 1;" @click="submitCheckin" :loading="submitting">
-            确认入住
-          </el-button>
-          <el-button size="large" @click="$router.back()">取消</el-button>
-        </div>
       </el-col>
     </el-row>
+
+    <div class="form-actions">
+      <el-button size="large" @click="$router.back()">取消</el-button>
+      <el-button type="danger" size="large" @click="submitCheckin" :loading="submitting">
+        确认入住
+      </el-button>
+    </div>
 
     <el-dialog v-model="showCreateGuest" title="新建客人" width="500px">
       <el-form :model="newGuest" label-width="80px">
@@ -288,6 +292,16 @@ onMounted(async () => {
 <style scoped>
 .page-header { margin-bottom: 16px; }
 .page-header h2 { margin: 0; font-size: 20px; }
+
+.form-actions {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid #ebeef5;
+}
+
 .room-select-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);

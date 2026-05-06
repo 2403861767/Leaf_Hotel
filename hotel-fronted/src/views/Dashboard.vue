@@ -109,7 +109,7 @@ import { ref, reactive, onMounted, computed } from 'vue'
 import { useAuthStore } from '../stores/auth'
 import { queryCheckins } from '../api/checkin'
 import { getStatusMap } from '../api/room'
-import { Edit, Switch, HomeFilled, User } from '@element-plus/icons-vue'
+import { Edit, Switch, HomeFilled, User, CircleCheck, Warning } from '@element-plus/icons-vue'
 
 const authStore = useAuthStore()
 const inHouseList = ref([])
@@ -121,14 +121,14 @@ const currentDate = computed(() => {
   return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`
 })
 
+const statsToday = computed(() => inHouseList.value.length || 0)
+
 const stats = computed(() => [
   { label: '在住房间', value: roomStats.occupied, icon: 'HomeFilled', bg: 'linear-gradient(135deg, #C04848, #a03838)' },
   { label: '可售房间', value: roomStats.available, icon: 'CircleCheck', bg: 'linear-gradient(135deg, #48762E, #356322)' },
   { label: '脏房待清洁', value: roomStats.dirty, icon: 'Warning', bg: 'linear-gradient(135deg, #e6a23c, #cf9236)' },
   { label: '今日入住', value: statsToday.value, icon: 'Edit', bg: 'linear-gradient(135deg, #409eff, #337ecc)' }
 ])
-
-const statsToday = computed(() => inHouseList.value.length || 0)
 
 const roomSummary = computed(() => [
   { label: '可售', count: roomStats.available, color: '#48762E' },
